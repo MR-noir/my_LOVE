@@ -5,296 +5,363 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>聊天数据分析可视化</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.0.0/dist/echarts-wordcloud.min.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f8f9fa;
-            color: #333;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e6e6e6;
             padding: 20px;
+            min-height: 100vh;
         }
-        .header {
+        
+        header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #4e73df;
+            padding: 20px 0 30px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .header h1 {
-            color: #4e73df;
-            font-size: 32px;
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
-        .header p {
-            color: #6c757d;
-            font-size: 16px;
+        
+        .subtitle {
+            color: #a0a0b0;
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
         }
-        .chart-grid {
+        
+        .dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            max-width: 1300px;
+            margin: 0 auto;
         }
+        
         .chart-container {
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            background: rgba(30, 30, 46, 0.7);
+            border-radius: 15px;
             padding: 20px;
-            transition: transform 0.3s ease;
-            height: 450px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 400px;
         }
+        
         .chart-container:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
         }
+        
         .chart-title {
-            color: #4e73df;
-            font-size: 18px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eaeaea;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            color: #feb47b;
         }
-        .chart-summary {
-            font-size: 14px;
-            color: #6c757d;
+        
+        .chart-title i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .chart {
+            width: 100%;
+            height: calc(100% - 40px);
+        }
+        
+        .double-chart {
+            grid-column: span 2;
+            height: 450px;
+        }
+        
+        .summary-container {
+            grid-column: span 2;
+            background: rgba(30, 30, 46, 0.7);
+            border-radius: 15px;
+            padding: 25px;
             margin-top: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
         }
-        .footer {
+        
+        .summary-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #ff7e5f;
             text-align: center;
-            margin-top: 40px;
-            color: #6c757d;
-            font-size: 14px;
-            padding: 20px 0;
-            border-top: 1px solid #eaeaea;
         }
-        .half-height {
-            height: 350px;
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .participant {
+            background: rgba(40, 40, 60, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .participant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .participant-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #64b5f6;
+        }
+        
+        .message-count {
+            font-size: 1.1rem;
+            color: #81c784;
+        }
+        
+        .topic-list {
+            list-style: none;
+        }
+        
+        .topic-list li {
+            padding: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.07);
+        }
+        
+        .topic-text {
+            color: #e0e0e0;
+        }
+        
+        .topic-count {
+            color: #ffb74d;
+            font-weight: bold;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            color: #a0a0b0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 1250px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            .double-chart {
+                grid-column: span 1;
+            }
+            .summary-container {
+                grid-column: span 1;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>聊天数据分析可视化</h1>
-            <p>数据区间：2024年6月8日 - 2025年7月31日</p>
-            <p>生成时间：2025年8月12日 15时41分36秒</p>
-	    <a href="wechatpsge.html">聊天界面</a>
+    <header>
+        <h1>聊天数据分析可视化</h1>
+        <p class="subtitle">聊天数据多维度分析 (2024年6月8日 - 2025年7月31日)</p>
+        <a href="wechatpsge.html" target="_blank">在疲惫的日子里总要做一些温柔的梦，比如我很想你</a>
+    </header>
+    
+    <div class="dashboard">
+        <div class="chart-container double-chart">
+            <div class="chart-title"><i>📅</i> 参与者消息时间分布</div>
+            <div id="timeDistribution" class="chart"></div>
         </div>
         
-        <div class="chart-grid">
-            <div class="chart-container">
-                <div class="chart-title">月度消息量对比</div>
-                <div id="monthlyChart" style="height: 350px;"></div>
-                <div class="chart-summary">
-                    <p>· NOIR 总消息数: <strong>23,246</strong> | if 总消息数: <strong>20,807</strong></p>
-                    <p>· 最高月: 2024年7月 (NOIR: 4,061条, if: 3,247条)</p>
-                    <p>· 最低月: 2025年7月 (NOIR: 630条, if: 599条)</p>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">活跃时段分布（热力图）</div>
-                <div id="hourWeekChart" style="height: 350px;"></div>
-                <div class="chart-summary">
-                    <p>· 最活跃时段: <strong>0时</strong> (9,867条) | 最活跃星期: <strong>星期二</strong> (7,688条)</p>
-                    <p>· 最冷清时段: <strong>5时</strong> (93条) | 最冷清星期: <strong>星期六</strong> (3,569条)</p>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">情感分布分析</div>
-                <div id="sentimentChart" style="height: 350px;"></div>
-                <div class="chart-summary">
-                    <p>· 整体中性消息占比: <strong>88.9%</strong></p>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">高频关键词分布</div>
-                <div id="keywordChart" style="height: 350px;"></div>
-                <div class="chart-summary">
-                    <p>· 最常用词语: "<strong>宝贝</strong>" (1,312次)</p>
-                    <p>· 情感相关高频词: "喜欢" (827次), "晚安" (514次), "不要" (496次)</p>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">参与者对话占比</div>
-                <div id="userShareChart" style="height: 350px;"></div>
-                <div class="chart-summary">
-                    <p>· NOIR 发言占比: <strong>52.8%</strong> | if 发言占比: <strong>47.2%</strong></p>
-                    <p>· 总消息数: <strong>44,053</strong> 条</p>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <div class="chart-title">个人常用关键词TOP5</div>
-                <div id="userKeywordsChart" style="height: 350px;"></div>
-                <div class="chart-summary">
-                    <p>· if的关键词: 宝贝, 知道, 捂脸, 撤回, 一条</p>
-                    <p>· NOIR的关键词: 宝贝, 宝宝, 没有, 喜欢, 真的</p>
-                </div>
-            </div>
+        <div class="chart-container">
+            <div class="chart-title"><i>😊</i> 情感分析结果</div>
+            <div id="sentimentAnalysis" class="chart"></div>
         </div>
         
-        <div class="footer">
-            <p>数据分析报告 © 2025 | 数据来源: 聊天历史记录 | 统计方法: 基于Python的自然语言处理分析</p>
+        <div class="chart-container">
+            <div class="chart-title"><i>⏰</i> 聊天时段分布</div>
+            <div id="timeHeatmap" class="chart"></div>
+        </div>
+        
+        <div class="chart-container">
+            <div class="chart-title"><i>📊</i> 高频主题词云</div>
+            <div id="wordCloud" class="chart"></div>
+        </div>
+        
+        <div class="summary-container">
+            <div class="summary-title">对话互动分析摘要</div>
+            <div class="summary-grid">
+                <div class="participant">
+                    <div class="participant-header">
+                        <div class="participant-name">if</div>
+                        <div class="message-count">发言条数：20,807</div>
+                    </div>
+                    <div class="participant-body">
+                        <p><strong>发言占比：</strong> <span style="color:#64ffda">47.2%</span></p>
+                        <p><strong>最常讨论主题：</strong></p>
+                        <ul class="topic-list">
+                            <li><span class="topic-text">宝贝</span><span class="topic-count">361次</span></li>
+                            <li><span class="topic-text">知道</span><span class="topic-count">349次</span></li>
+                            <li><span class="topic-text">捂脸</span><span class="topic-count">335次</span></li>
+                            <li><span class="topic-text">撤回</span><span class="topic-count">324次</span></li>
+                            <li><span class="topic-text">一条</span><span class="topic-count">322次</span></li>
+                        </ul>
+                        <p style="margin-top:15px"><strong>消息情感：</strong> <span style="color:#ffb74d">中性为主 (89.9%)</span></p>
+                    </div>
+                </div>
+                
+                <div class="participant">
+                    <div class="participant-header">
+                        <div class="participant-name">NOIR</div>
+                        <div class="message-count">发言条数：23,246</div>
+                    </div>
+                    <div class="participant-body">
+                        <p><strong>发言占比：</strong> <span style="color:#64ffda">52.8%</span></p>
+                        <p><strong>最常讨论主题：</strong></p>
+                        <ul class="topic-list">
+                            <li><span class="topic-text">宝贝</span><span class="topic-count">884次</span></li>
+                            <li><span class="topic-text">宝宝</span><span class="topic-count">757次</span></li>
+                            <li><span class="topic-text">没有</span><span class="topic-count">549次</span></li>
+                            <li><span class="topic-text">喜欢</span><span class="topic-count">421次</span></li>
+                            <li><span class="topic-text">真的</span><span class="topic-count">369次</span></li>
+                        </ul>
+                        <p style="margin-top:15px"><strong>消息情感：</strong> <span style="color:#ffb74d">中性为主 (88.4%)</span></p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+    
+    <footer>
+        <p>数据时间范围：2024年6月8日 - 2025年7月31日 | 分析时间：2025年8月12日</p>
+        <p>© 2025 聊天数据分析系统 | 可视化展示</p>
+    </footer>
 
     <script>
-        // 初始化ECharts实例
-        const monthlyChart = echarts.init(document.getElementById('monthlyChart'));
-        const hourWeekChart = echarts.init(document.getElementById('hourWeekChart'));
-        const sentimentChart = echarts.init(document.getElementById('sentimentChart'));
-        const keywordChart = echarts.init(document.getElementById('keywordChart'));
-        const userShareChart = echarts.init(document.getElementById('userShareChart'));
-        const userKeywordsChart = echarts.init(document.getElementById('userKeywordsChart'));
-        
-        // 1. 月度消息量对比
-        const monthlyOption = {
-            tooltip: {
-                trigger: 'axis',
-                formatter: '{b}<br/>{a0}: {c0}条<br/>{a1}: {c1}条'
-            },
-            legend: {
-                data: ['NOIR', 'if'],
-                bottom: 10
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '15%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                data: ['2024-06', '2024-07', '2024-08', '2024-09', '2024-10', '2024-11', 
-                       '2024-12', '2025-01', '2025-02', '2025-03', '2025-04', '2025-05', '2025-06', '2025-07'],
-                axisLabel: {
-                    rotate: 45
-                }
-            },
-            yAxis: {
-                type: 'value',
-                name: '消息数量'
-            },
-            series: [
-                {
-                    name: 'NOIR',
-                    type: 'bar',
-                    data: [2656, 4061, 1378, 1996, 1505, 838, 1232, 1221, 1112, 1610, 1926, 1629, 1449, 630],
-                    itemStyle: {color: '#4e73df'}
+        // 初始化所有图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 消息时间分布柱状图
+            const timeDistChart = echarts.init(document.getElementById('timeDistribution'));
+            const timeDistOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(40, 40, 60, 0.9)',
+                    borderColor: '#777',
+                    textStyle: { color: '#fff' },
+                    formatter: '{b}<br/>{a}: {c}条消息'
                 },
-                {
-                    name: 'if',
-                    type: 'bar',
-                    data: [2154, 3247, 1384, 2153, 1367, 788, 1269, 1084, 980, 1412, 1534, 1291, 1544, 599],
-                    itemStyle: {color: '#1cc88a'}
-                }
-            ]
-        };
-        
-        // 2. 活跃时段热力图
-        const weekdays = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'];
-        const hours = Array.from({length: 24}, (_, i) => i + '时');
-        const heatData = [
-            [1578,1258,541,421,220,86,14,12,113,180,172,108,167,106,197,173,160,145,175,197,300,161,250,833],
-            [1994,1569,528,78,0,0,6,7,101,122,225,166,201,172,151,162,298,283,172,223,176,170,251,633],
-            [1657,1136,354,180,24,0,2,24,100,82,192,206,323,191,139,226,160,217,171,204,176,187,221,945],
-            [1602,1194,243,24,7,3,5,53,99,127,135,162,177,126,212,102,239,145,182,144,279,275,237,550],
-            [1909,1988,822,47,1,0,5,17,65,73,166,174,183,335,88,203,203,177,178,194,103,70,175,389],
-            [643,752,358,176,41,1,1,5,4,43,56,105,101,95,59,57,122,236,69,68,97,73,109,298],
-            [484,441,340,111,20,3,10,1,39,31,107,105,82,90,90,159,148,91,193,283,208,211,255,723]
-        ];
-        let heatmapData = [];
-        for (let i = 0; i < 7; i++) {
-            for (let j = 0; j < 24; j++) {
-                heatmapData.push([j, i, heatData[i][j]]);
-            }
-        }
-        const heatmapOption = {
-            tooltip: {
-                position: 'top',
-                formatter: function(params) {
-                    return weekdays[params.value[1]] + '<br>' 
-                        + params.value[0] + '时<br>消息数: ' + params.value[2];
-                }
-            },
-            grid: {
-                top: 40,
-                bottom: 40,
-                left: 60,
-                right: 20
-            },
-            xAxis: {
-                type: 'category',
-                data: hours,
-                position: 'top',
-                axisLabel: {
-                    interval: 0
-                }
-            },
-            yAxis: {
-                type: 'category',
-                data: weekdays,
-                axisLabel: {
-                    interval: 0
-                }
-            },
-            visualMap: {
-                min: 0,
-                max: 2000,
-                calculable: true,
-                orient: 'vertical',
-                left: 'right',
-                top: 'center',
-                inRange: {
-                    color: ['#d6eaff', '#1890ff', '#0050b3']
-                }
-            },
-            series: [{
-                name: '消息数',
-                type: 'heatmap',
-                data: heatmapData,
-                emphasis: {
-                    itemStyle: {
-                        shadowBlur: 10,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                legend: {
+                    data: ['NOIR', 'if'],
+                    textStyle: { color: '#ccc' },
+                    right: '5%'
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    top: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['2024-06', '2024-07', '2024-08', '2024-09', '2024-10', '2024-11', 
+                           '2024-12', '2025-01', '2025-02', '2025-03', '2025-04', '2025-05', '2025-06', '2025-07'],
+                    axisLine: { lineStyle: { color: '#777' } },
+                    axisLabel: { color: '#aaa', rotate: 45 }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '消息数量',
+                    nameTextStyle: { color: '#aaa' },
+                    axisLine: { show: true, lineStyle: { color: '#777' } },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                    axisLabel: { color: '#aaa' }
+                },
+                series: [
+                    {
+                        name: 'NOIR',
+                        type: 'bar',
+                        data: [2656, 4061, 1378, 1996, 1505, 838, 1232, 1221, 1112, 1610, 1926, 1629, 1449, 630],
+                        itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#83bff6' },
+                            { offset: 1, color: '#188df0' }
+                        ]) },
+                        emphasis: {
+                            itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#8dc1ff' },
+                                { offset: 1, color: '#1e90ff' }
+                            ]) }
+                        }
+                    },
+                    {
+                        name: 'if',
+                        type: 'bar',
+                        data: [2154, 3247, 1384, 2153, 1367, 788, 1269, 1084, 980, 1412, 1534, 1291, 1544, 599],
+                        itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: '#ff9f7f' },
+                            { offset: 1, color: '#f86c6b' }
+                        ]) },
+                        emphasis: {
+                            itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: '#ffaa8f' },
+                                { offset: 1, color: '#ff6b6b' }
+                            ]) }
+                        }
                     }
-                }
-            }]
-        };
-        
-        // 3. 情感分布分析
-        const sentimentOption = {
-            tooltip: {
-                trigger: 'item',
-                formatter: '{b}: {c}条 ({d}%)'
-            },
-            legend: {
-                bottom: 10,
-                data: ['中性', '积极', '消极']
-            },
-            color: ['#858796', '#1cc88a', '#e74a3b'],
-            series: [
-                {
+                ]
+            };
+            timeDistChart.setOption(timeDistOption);
+            
+            // 情感分析饼图
+            const sentimentChart = echarts.init(document.getElementById('sentimentAnalysis'));
+            const sentimentOption = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c} ({d}%)',
+                    backgroundColor: 'rgba(40, 40, 60, 0.9)',
+                    textStyle: { color: '#fff' }
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center',
+                    textStyle: { color: '#ccc' }
+                },
+                series: [{
                     name: '情感分布',
                     type: 'pie',
-                    radius: ['40%', '70%'],
+                    radius: ['35%', '70%'],
+                    center: ['40%', '50%'],
                     avoidLabelOverlap: false,
                     itemStyle: {
                         borderRadius: 10,
-                        borderColor: '#fff',
+                        borderColor: '#1a1a2e',
                         borderWidth: 2
                     },
                     label: {
-                        show: false,
-                        position: 'center'
+                        show: true,
+                        formatter: '{b}: {d}%',
+                        color: '#e6e6e6'
                     },
                     emphasis: {
                         label: {
@@ -303,180 +370,152 @@
                             fontWeight: 'bold'
                         }
                     },
-                    labelLine: {
+                    data: [
+                        { value: 39257, name: '中性', itemStyle: { color: '#64b5f6' } },
+                        { value: 4347, name: '积极', itemStyle: { color: '#81c784' } },
+                        { value: 449, name: '消极', itemStyle: { color: '#ff6b6b' } }
+                    ]
+                }]
+            };
+            sentimentChart.setOption(sentimentOption);
+            
+            // 聊天时段热力图
+            const heatmapChart = echarts.init(document.getElementById('timeHeatmap'));
+            const heatmapOption = {
+                tooltip: {
+                    position: 'top',
+                    formatter: function (params) {
+                        return '星期' + params.value[0] + '<br>' 
+                            + params.value[1] + '<br>'
+                            + '消息数: ' + params.value[2];
+                    },
+                    backgroundColor: 'rgba(40, 40, 60, 0.9)',
+                    textStyle: { color: '#fff' }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '10%',
+                    top: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['0~2', '2~4', '4~6', '6~8', '8~10', '10~12', 
+                           '12~14', '14~16', '16~18', '18~20', '20~22', '22~24'],
+                    position: 'top',
+                    axisLine: { lineStyle: { color: '#777' } },
+                    axisLabel: { color: '#aaa', interval: 0 }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'],
+                    inverse: true,
+                    axisLine: { lineStyle: { color: '#777' } },
+                    axisLabel: { color: '#aaa' }
+                },
+                visualMap: {
+                    min: 0,
+                    max: 4000,
+                    calculable: true,
+                    orient: 'vertical',
+                    right: '3%',
+                    top: 'center',
+                    textStyle: { color: '#ccc' },
+                    inRange: {
+                        color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#fee090', '#fdae61', '#f46d43', '#d73027']
+                    }
+                },
+                series: [{
+                    name: '消息数量',
+                    type: 'heatmap',
+                    data: [
+                        [0, 0, 2836], [1, 0, 962], [2, 0, 306], [3, 0, 26], [4, 0, 293], [5, 0, 280], [6, 0, 273], [7, 0, 370], [8, 0, 305], [9, 0, 372], [10, 0, 461], [11, 0, 1083],
+                        [0, 1, 3563], [1, 1, 606], [2, 1, 0], [3, 1, 13], [4, 1, 223], [5, 1, 391], [6, 1, 373], [7, 1, 313], [8, 1, 581], [9, 1, 395], [10, 1, 346], [11, 1, 884],
+                        [0, 2, 2793], [1, 2, 534], [2, 2, 24], [3, 2, 26], [4, 2, 182], [5, 2, 398], [6, 2, 514], [7, 2, 365], [8, 2, 377], [9, 2, 375], [10, 2, 363], [11, 2, 1166],
+                        [0, 3, 2796], [1, 3, 267], [2, 3, 10], [3, 3, 58], [4, 3, 226], [5, 3, 297], [6, 3, 303], [7, 3, 314], [8, 3, 384], [9, 3, 326], [10, 3, 554], [11, 3, 787],
+                        [0, 4, 3897], [1, 4, 869], [2, 4, 1], [3, 4, 22], [4, 4, 138], [5, 4, 340], [6, 4, 518], [7, 4, 291], [8, 4, 380], [9, 4, 372], [10, 4, 173], [11, 4, 564],
+                        [0, 5, 1395], [1, 5, 534], [2, 5, 42], [3, 5, 6], [4, 5, 47], [5, 5, 161], [6, 5, 196], [7, 5, 116], [8, 5, 358], [9, 5, 137], [10, 5, 170], [11, 5, 407],
+                        [0, 6, 925], [1, 6, 451], [2, 6, 23], [3, 6, 11], [4, 6, 70], [5, 6, 212], [6, 6, 172], [7, 6, 249], [8, 6, 239], [9, 6, 476], [10, 6, 419], [11, 6, 978]
+                    ],
+                    label: {
                         show: false
                     },
-                    data: [
-                        {value: 39257, name: '中性'},
-                        {value: 4347, name: '积极'},
-                        {value: 449, name: '消极'}
-                    ]
-                }
-            ]
-        };
-        
-        // 4. 高频关键词分布
-        const keywords = ['宝贝', '宝宝', '喜欢', '知道', '真的', '感觉', '自己', '可以', '还是', '觉得', '现在', '晚安', '不要'];
-        const keywordCounts = [1312, 1065, 827, 696, 690, 688, 668, 666, 660, 615, 583, 514, 496];
-        const keywordOption = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
-                }
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'value',
-                name: '出现频次'
-            },
-            yAxis: {
-                type: 'category',
-                data: keywords,
-                name: '关键词'
-            },
-            series: [
-                {
-                    name: '出现频次',
-                    type: 'bar',
-                    data: keywordCounts,
-                    itemStyle: {
-                        color: function(params) {
-                            return params.value > 1000 ? '#4e73df' : 
-                                   params.value > 700 ? '#36b9cc' : 
-                                   params.value > 500 ? '#1cc88a' : '#f6c23e';
-                        }
-                    },
-                    label: {
-                        show: true,
-                        position: 'right'
-                    }
-                }
-            ]
-        };
-        
-        // 5. 参与者对话占比
-        const userShareOption = {
-            tooltip: {
-                trigger: 'item',
-                formatter: '{b}: {c}条 ({d}%)'
-            },
-            legend: {
-                orient: 'vertical',
-                right: 10,
-                top: 'center',
-                data: ['NOIR', 'if']
-            },
-            color: ['#4e73df', '#1cc88a'],
-            series: [
-                {
-                    name: '发言占比',
-                    type: 'pie',
-                    radius: '50%',
-                    center: ['40%', '50%'],
-                    data: [
-                        {value: 23246, name: 'NOIR'},
-                        {value: 20807, name: 'if'}
-                    ],
                     emphasis: {
                         itemStyle: {
-                            shadowBlir: 10,
-                            shadowOffsetX: 0,
+                            shadowBlur: 10,
                             shadowColor: 'rgba(0, 0, 0, 0.5)'
                         }
+                    }
+                }]
+            };
+            heatmapChart.setOption(heatmapOption);
+            
+            // 修复词云图
+            const wordCloudChart = echarts.init(document.getElementById('wordCloud'));
+            const wordData = [
+                { name: '宝贝', value: 1312 },
+                { name: '宝宝', value: 1065 },
+                { name: '喜欢', value: 827 },
+                { name: '知道', value: 696 },
+                { name: '真的', value: 690 },
+                { name: '感觉', value: 688 },
+                { name: '自己', value: 668 },
+                { name: '可以', value: 666 },
+                { name: '还是', value: 660 },
+                { name: '觉得', value: 615 },
+                { name: '现在', value: 583 },
+                { name: '晚安', value: 514 },
+                { name: '不要', value: 496 }
+            ];
+            
+            const wordCloudOption = {
+                tooltip: {
+                    show: true,
+                    formatter: function(params) {
+                        return params.name + ': ' + params.value;
                     },
-                    label: {
-                        formatter: '{b}: {c}条 ({d}%)'
-                    }
-                }
-            ]
-        };
-        
-        // 6. 个人常用关键词TOP5（修正过的部分）
-        const ifKeywords = ['宝贝', '知道', '捂脸', '撤回', '一条'];
-        const noirKeywords = ['宝贝', '宝宝', '没有', '喜欢', '真的'];
-        const userKeywordsOption = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
+                    backgroundColor: 'rgba(40, 40, 60, 0.9)',
+                    textStyle: { color: '#fff' }
                 },
-                formatter: function(params) {
-                    return params[0].name + '<br/>' + 
-                           params[0].seriesName + ': ' + params[0].value + '次<br/>' + 
-                           params[1].seriesName + ': ' + params[1].value + '次';
-                }
-            },
-            legend: {
-                data: ['if', 'NOIR'],
-                bottom: 10
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '15%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                data: ['TOP1', 'TOP2', 'TOP3', 'TOP4', 'TOP5'],
-                name: '关键词排名'
-            },
-            yAxis: {
-                type: 'value',
-                name: '使用频次'
-            },
-            series: [
-                {
-                    name: 'if',
-                    type: 'bar',
-                    data: [361, 349, 335, 324, 322],
-                    itemStyle: {color: '#1cc88a'},
-                    label: {
-                        show: true,
-                        position: 'top',
-                        formatter: function(params) {
-                            return ifKeywords[params.dataIndex];
+                series: [{
+                    type: 'wordCloud',
+                    sizeRange: [15, 70],
+                    rotationRange: [0, 0],
+                    shape: 'circle',
+                    layoutAnimation: true,
+                    textStyle: {
+                        fontFamily: 'sans-serif',
+                        fontWeight: 'bold',
+                        color: function () {
+                            // 随机但鲜艳的颜色
+                            return 'rgb(' + [
+                                Math.round(Math.random() * 100 + 155),
+                                Math.round(Math.random() * 100 + 155),
+                                Math.round(Math.random() * 100 + 155)
+                            ].join(',') + ')';
                         }
-                    }
-                },
-                {
-                    name: 'NOIR',
-                    type: 'bar',
-                    data: [884, 757, 549, 421, 369],
-                    itemStyle: {color: '#4e73df'},
-                    label: {
-                        show: true,
-                        position: 'top',
-                        formatter: function(params) {
-                            return noirKeywords[params.dataIndex];
+                    },
+                    emphasis: {
+                        focus: 'self',
+                        textStyle: {
+                            shadowBlur: 10,
+                            shadowColor: '#333'
                         }
-                    }
-                }
-            ]
-        };
-        
-        // 设置图表选项
-        monthlyChart.setOption(monthlyOption);
-        hourWeekChart.setOption(heatmapOption);
-        sentimentChart.setOption(sentimentOption);
-        keywordChart.setOption(keywordOption);
-        userShareChart.setOption(userShareOption);
-        userKeywordsChart.setOption(userKeywordsOption);
-        
-        // 响应窗口调整大小
-        window.addEventListener('resize', function() {
-            monthlyChart.resize();
-            hourWeekChart.resize();
-            sentimentChart.resize();
-            keywordChart.resize();
-            userShareChart.resize();
-            userKeywordsChart.resize();
+                    },
+                    data: wordData
+                }]
+            };
+            
+            wordCloudChart.setOption(wordCloudOption);
+            
+            // 响应式调整
+            window.addEventListener('resize', function() {
+                timeDistChart.resize();
+                sentimentChart.resize();
+                heatmapChart.resize();
+                wordCloudChart.resize();
+            });
         });
     </script>
 </body>
