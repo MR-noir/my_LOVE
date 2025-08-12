@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信聊天记录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #EDEDED;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+        
+        .chat-container {
+            width: 100%;
+            max-width: 400px;
+            height: 95vh;
+            background-color: #FFFFFF;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            background-color: #F5F5F5;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #E5E5E5;
+        }
+        
+        .back-arrow {
+            font-size: 20px;
+            margin-right: 10px;
+            color: #000000;
+            cursor: pointer;
+        }
+        
+        .friend-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        
+        .friend-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .friend-name {
+            margin-left: 10px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .messages-container {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: #F3F3F3;
+        }
+        
+        .time-stamp {
+            text-align: center;
+            color: #999999;
+            font-size: 12px;
+            padding: 5px 0;
+            margin: 5px 0;
+        }
+        
+        .message-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .message-row.me {
+            justify-content: flex-end;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .me .message-avatar {
+            margin-left: 10px;
+        }
+        
+        .other .message-avatar {
+            margin-right: 10px;
+        }
+        
+        .message-content {
+            max-width: 75%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message-bubble {
+            padding: 10px;
+            word-wrap: break-word;
+            border-radius: 5px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .me .message-bubble {
+            background-color: #95EC69;
+            border-radius: 5px 0 5px 5px;
+        }
+        
+        .other .message-bubble {
+            background-color: white;
+            border-radius: 0 5px 5px 5px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .input-container {
+            background-color: #F5F5F5;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid #E5E5E5;
+        }
+        
+        .input-box {
+            flex: 1;
+            background-color: white;
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-placeholder {
+            color: #999999;
+            font-size: 14px;
+        }
+        
+        .mic-icon, .emoji-icon, .plus-icon {
+            font-size: 20px;
+            color: #7D7D7D;
+            cursor: pointer;
+        }
+        
+        .voice-icon {
+            font-size: 20px;
+            color: #10AEFF;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="back-arrow">〈 </div>
+            <div class="friend-avatar">
+                <img src="she.jpg" alt="宝贝头像">
+            </div>
+            <div class="friend-name">宝宝妹</div>
+        </div>
+        
+        <div class="messages-container">
+            <div class="time-stamp">2024年11月13日下午16:56</div>
+            
+            <div class="message-row me">
+                <div class="message-content">
+                    <div class="message-bubble">取一下快递</div>
+                </div>
+                <div class="message-avatar">
+                    <img src="me.jpg" alt="我的头像">
+                </div>
+            </div>
+            
+            <div class="message-row me">
+                <div class="message-content">
+                    <div class="message-bubble">宝宝妹</div>
+                </div>
+                <div class="message-avatar">
+                    <img src="me.jpg" alt="我的头像">
+                </div>
+            </div>
+            
+            <div class="message-row other">
+                <div class="message-avatar">
+                    <img src="she.jpg" alt="宝贝头像">
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">等下的马上</div>
+                </div>
+            </div>
+            
+            <div class="message-row other">
+                <div class="message-avatar">
+                    <img src="she.jpg" alt="宝贝头像">
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">在被上课，今天都在讲面试</div>
+                </div>
+            </div>
+            
+            <div class="time-stamp">2024年11月13日下午17:07</div>
+            
+            <div class="message-row me">
+                <div class="message-content">
+                    <div class="message-bubble">加油，宝贝</div>
+                </div>
+                <div class="message-avatar">
+                    <img src="me.jpg" alt="我的头像">
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <div class="voice-icon">🔊</div>
+            <div class="input-box">
+                <div class="input-placeholder">输入消息...</div>
+            </div>
+            <div class="emoji-icon">☺️</div>
+            <div class="plus-icon">✚</div>
+        </div>
+    </div>
+    
+    <script>
+        // 使消息容器自动滚动到底部
+        const messagesContainer = document.querySelector('.messages-container');
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        // 头像悬停效果
+        const avatars = document.querySelectorAll('.message-avatar');
+        avatars.forEach(avatar => {
+            avatar.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1)';
+            });
+            avatar.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+        
+        // 语音图标切换
+        document.querySelector('.voice-icon').addEventListener('click', function() {
+            this.textContent = this.textContent === '🔊' ? '⌨️' : '🔊';
+            document.querySelector('.input-placeholder').textContent = 
+                this.textContent === '⌨️' ? '按住说话...' : '输入消息...';
+        });
+    </script>
+</body>
+</html>
