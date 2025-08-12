@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="微信聊天记录模拟界面">
     <title>微信聊天记录</title>
     <style>
         * {
@@ -175,14 +176,14 @@
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <div class="back-arrow"><a href="index.html"> 〈  </a></div>
+    <main class="chat-container">
+        <header class="chat-header">
+            <button class="back-arrow" aria-label="返回" onclick="window.location.href='index.html'">〈 </button>
             <div class="friend-avatar">
-                <img src="she.jpg" alt="宝贝头像">
+                <img src="she.jpg" alt="宝宝妹的头像">
             </div>
-            <div class="friend-name">宝宝妹</div>
-        </div>
+            <h1 class="friend-name">宝宝妹</h1>
+        </header>
         
         <div class="messages-container">
             <div class="time-stamp">2024年11月13日下午16:56</div>
